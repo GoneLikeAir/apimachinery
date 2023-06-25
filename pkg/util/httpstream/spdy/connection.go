@@ -17,6 +17,7 @@ limitations under the License.
 package spdy
 
 import (
+	"k8s.io/klog/v2"
 	"net"
 	"net/http"
 	"sync"
@@ -24,7 +25,6 @@ import (
 
 	"github.com/moby/spdystream"
 	"k8s.io/apimachinery/pkg/util/httpstream"
-	"k8s.io/klog/v2"
 )
 
 // connection maintains state about a spdystream.Connection and its associated
@@ -53,6 +53,7 @@ func NewClientConnectionWithPings(conn net.Conn, pingPeriod time.Duration) (http
 		defer conn.Close()
 		return nil, err
 	}
+	spdyConn.SetCloseTimeout(time.Second * 15)
 
 	return newConnection(spdyConn, httpstream.NoOpNewStreamHandler, pingPeriod, spdyConn.Ping), nil
 }
@@ -77,6 +78,7 @@ func NewServerConnectionWithPings(conn net.Conn, newStreamHandler httpstream.New
 		defer conn.Close()
 		return nil, err
 	}
+	spdyConn.SetCloseTimeout(time.Second * 15)
 
 	return newConnection(spdyConn, newStreamHandler, pingPeriod, spdyConn.Ping), nil
 }
