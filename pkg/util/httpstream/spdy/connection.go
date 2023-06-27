@@ -35,6 +35,7 @@ type connection struct {
 	streamLock       sync.Mutex
 	newStreamHandler httpstream.NewStreamHandler
 	ping             func() (time.Duration, error)
+	lastStreamStream chan *spdystream.Stream
 }
 
 // NewClientConnection creates a new SPDY client connection.
@@ -54,8 +55,9 @@ func NewClientConnectionWithPings(conn net.Conn, pingPeriod time.Duration) (http
 		return nil, err
 	}
 	spdyConn.SetCloseTimeout(time.Second * 15)
-
-	return newConnection(spdyConn, httpstream.NoOpNewStreamHandler, pingPeriod, spdyConn.Ping), nil
+	c := make(chan *spdystream.Stream)
+	spdyConn.NotifyClose(c, time.Second*15)
+	return newConnection(spdyConn, c, httpstream.NoOpNewStreamHandler, pingPeriod, spdyConn.Ping), nil
 }
 
 // NewServerConnection creates a new SPDY server connection. newStreamHandler
@@ -79,15 +81,16 @@ func NewServerConnectionWithPings(conn net.Conn, newStreamHandler httpstream.New
 		return nil, err
 	}
 	spdyConn.SetCloseTimeout(time.Second * 15)
-
-	return newConnection(spdyConn, newStreamHandler, pingPeriod, spdyConn.Ping), nil
+	c := make(chan *spdystream.Stream)
+	spdyConn.NotifyClose(c, time.Second*15)
+	return newConnection(spdyConn, c, newStreamHandler, pingPeriod, spdyConn.Ping), nil
 }
 
 // newConnection returns a new connection wrapping conn. newStreamHandler
 // will be invoked when the server receives a newly created stream from the
 // client.
-func newConnection(conn *spdystream.Connection, newStreamHandler httpstream.NewStreamHandler, pingPeriod time.Duration, pingFn func() (time.Duration, error)) httpstream.Connection {
-	c := &connection{conn: conn, newStreamHandler: newStreamHandler, ping: pingFn}
+func newConnection(conn *spdystream.Connection, lastSpdyStreamChan chan *spdystream.Stream, newStreamHandler httpstream.NewStreamHandler, pingPeriod time.Duration, pingFn func() (time.Duration, error)) httpstream.Connection {
+	c := &connection{conn: conn, newStreamHandler: newStreamHandler, ping: pingFn, lastStreamStream: lastSpdyStreamChan}
 	go conn.Serve(c.newSpdyStream)
 	if pingPeriod > 0 && pingFn != nil {
 		go c.sendPings(pingPeriod)
@@ -113,6 +116,7 @@ func (c *connection) Close() error {
 	// now that all streams are fully torn down, it's safe to call close on the underlying connection,
 	// which should be able to terminate immediately at this point, instead of waiting for any
 	// remaining graceful stream termination.
+	defer close(c.lastStreamStream)
 	return c.conn.Close()
 }
 
