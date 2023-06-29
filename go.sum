@@ -1,5 +1,5 @@
-github.com/GoneLikeAir/spdystream v0.2.3 h1:rUmLglODXmfefdA8uv1LHLdjuFMl/vOPyM2nLcrwlMk=
-github.com/GoneLikeAir/spdystream v0.2.3/go.mod h1:id98iMh4/sr/M3PxBnvP209Z1GKWPoMlx/G6mwoAVVY=
+github.com/GoneLikeAir/spdystream v0.2.4 h1:t81aoIedPx4Y6FlGRqB/BidEHe+wh3QXgTWS3oMgGks=
+github.com/GoneLikeAir/spdystream v0.2.4/go.mod h1:id98iMh4/sr/M3PxBnvP209Z1GKWPoMlx/G6mwoAVVY=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
