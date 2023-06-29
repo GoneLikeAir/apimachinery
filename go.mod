@@ -39,4 +39,4 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-replace github.com/moby/spdystream v0.2.0 => github.com/GoneLikeAir/spdystream v0.2.4
+replace github.com/moby/spdystream v0.2.0 => github.com/GoneLikeAir/spdystream v0.2.5
